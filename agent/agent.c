@@ -4279,10 +4279,7 @@ static gboolean
 nice_agent_recv_cancelled_cb (GCancellable *cancellable, gpointer user_data)
 {
   GError **error = user_data;
-
-  if (error && *error)
-    g_cancellable_set_error_if_cancelled (cancellable, error);
-  return G_SOURCE_REMOVE;
+  return !g_cancellable_set_error_if_cancelled (cancellable, error);
 }
 
 static gint
