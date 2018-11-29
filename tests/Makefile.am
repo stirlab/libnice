@@ -24,7 +24,7 @@ AM_CPPFLAGS = -DG_LOG_DOMAIN=\"libnice-tests\"
 
 AM_TESTS_ENVIRONMENT = \
 	G_MESSAGES_DEBUG=all \
-	NICE_DEBUG=all;
+	NICE_DEBUG=all
 
 COMMON_LDADD = $(top_builddir)/agent/libagent.la $(top_builddir)/socket/libsocket.la $(GLIB_LIBS) $(GUPNP_LIBS)
 
@@ -44,8 +44,10 @@ check_PROGRAMS = \
 	test-io-stream-pollable \
 	test-send-recv \
 	test-socket-is-based-on \
+	test-udp-turn-fragmentation \
 	test-priority \
 	test-fullmode \
+        test-different-number-streams \
 	test-restart \
 	test-fallback \
 	test-thread \
@@ -108,11 +110,13 @@ test_send_recv_LDADD = $(COMMON_LDADD)
 
 test_socket_is_based_on_LDADD = $(COMMON_LDADD)
 
+test_udp_turn_fragmentation_LDADD = $(COMMON_LDADD)
+
 test_priority_LDADD = $(COMMON_LDADD)
 
-test_mainloop_LDADD = $(COMMON_LDADD)
-
 test_fullmode_LDADD = $(COMMON_LDADD)
+
+test_different_number_streams_LDADD = $(COMMON_LDADD)
 
 test_restart_LDADD = $(COMMON_LDADD)
 

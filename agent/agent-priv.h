@@ -138,6 +138,8 @@ struct _NiceAgent
 {
   GObject parent;                 /* gobject pointer */
 
+  GMutex agent_mutex;             /* Mutex used for thread-safe lib */
+
   gboolean full_mode;             /* property: full-mode */
   gchar *stun_server_ip;          /* property: STUN server IP */
   guint stun_server_port;         /* property: STUN server port */
@@ -146,7 +148,7 @@ struct _NiceAgent
   NiceProxyType proxy_type;       /* property: Proxy type */
   gchar *proxy_username;          /* property: Proxy username */
   gchar *proxy_password;          /* property: Proxy password */
-  gboolean controlling_mode;      /* property: controlling-mode */
+  gboolean saved_controlling_mode;/* property: controlling-mode */
   guint timer_ta;                 /* property: timer Ta */
   guint max_conn_checks;          /* property: max connectivity checks */
   gboolean force_relay;           /* property: force relay */
@@ -190,6 +192,8 @@ struct _NiceAgent
   gboolean use_ice_tcp;
 
   guint conncheck_timer_grace_period; /* ongoing delay before timer stop */
+  gboolean controlling_mode;          /* controlling mode used by the
+                                         conncheck */
   /* XXX: add pointer to internal data struct for ABI-safe extensions */
 };
 
@@ -206,8 +210,8 @@ NiceStream *agent_find_stream (NiceAgent *agent, guint stream_id);
 void agent_gathering_done (NiceAgent *agent);
 void agent_signal_gathering_done (NiceAgent *agent);
 
-void agent_lock (void);
-void agent_unlock (void);
+void agent_lock (NiceAgent *agent);
+void agent_unlock (NiceAgent *agent);
 void agent_unlock_and_emit (NiceAgent *agent);
 
 void agent_signal_new_selected_pair (
@@ -233,8 +237,14 @@ void agent_signal_initial_binding_request_received (NiceAgent *agent, NiceStream
 
 guint64 agent_candidate_pair_priority (NiceAgent *agent, NiceCandidate *local, NiceCandidate *remote);
 
+typedef gboolean (*NiceTimeoutLockedCallback)(NiceAgent *agent,
+    gpointer user_data);
 void agent_timeout_add_with_context (NiceAgent *agent, GSource **out,
-    const gchar *name, guint interval, GSourceFunc function, gpointer data);
+    const gchar *name, guint interval, NiceTimeoutLockedCallback function,
+    gpointer data);
+void agent_timeout_add_seconds_with_context (NiceAgent *agent, GSource **out,
+    const gchar *name, guint interval, NiceTimeoutLockedCallback function,
+    gpointer data);
 
 StunUsageIceCompatibility agent_to_ice_compatibility (NiceAgent *agent);
 StunUsageTurnCompatibility agent_to_turn_compatibility (NiceAgent *agent);
